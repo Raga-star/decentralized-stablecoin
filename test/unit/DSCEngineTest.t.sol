@@ -29,10 +29,9 @@ contract DSCEngineTest is Test {
         ERC20Mock(weth).mint(USER, STARTING_ERC20_BALANCE);
     }
 
-
     /////////////////////////////////
     ////constructor tests go here////
-    ///////////////////////////////// 
+    /////////////////////////////////
     address[] public tokenAddresses;
     address[] public priceFeedAddresses;
 
@@ -46,7 +45,6 @@ contract DSCEngineTest is Test {
         new DSCEngine(tokenAddresses, priceFeedAddresses, address(dsc));
     }
 
-
     ///////////////////////////
     ////price tests go here////
     //////////////////////////
@@ -58,6 +56,7 @@ contract DSCEngineTest is Test {
         assertEq(expectedUsd, actualUsd);
     }
     //3000.000000000000000000 != 30000.000000000000000000
+
     function testGetTokenAmountFromUsd() public {
         uint256 usdAmount = 1000 ether; // 1e21 ($1000)
         uint256 expectedWeth = 0.5 ether; // 5e17 (0.5 WETH at $2000/ETH)
@@ -93,14 +92,12 @@ contract DSCEngineTest is Test {
         vm.stopPrank();
         _;
     }
-    function testCanDepositCollateralAndGetAccountInfo() public depositedCollateral{
+
+    function testCanDepositCollateralAndGetAccountInfo() public depositedCollateral {
         (uint256 totalDscMinted, uint256 collateralValueInUsd) = dsce.getAccountInformation(USER);
         uint256 expectedTotalDscMinted = 0;
         uint256 expectedDepositAmount = dsce.getTokenAmountFromUsd(weth, collateralValueInUsd);
         assertEq(expectedTotalDscMinted, totalDscMinted);
         assertEq(expectedDepositAmount, AMOUNT_COLLATERAL);
-        
     }
-    
-
 }

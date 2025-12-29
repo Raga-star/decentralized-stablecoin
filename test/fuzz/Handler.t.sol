@@ -21,7 +21,7 @@ contract Handler is Test {
     uint256 public timesDepositIsCalled;
     uint256 public timesPriceUpdateCalled;
     uint256 public timesLiquidateCalled;
-    
+
     address[] public usersWhoDeposited;
 
     // Store price feed addresses
@@ -109,11 +109,9 @@ contract Handler is Test {
 
     // =========== COMBINED OPERATIONS ===========
 
-    function depositCollateralAndMintDsc(
-        uint256 collateralSeed,
-        uint256 amountCollateral,
-        uint256 amountDscToMint
-    ) public {
+    function depositCollateralAndMintDsc(uint256 collateralSeed, uint256 amountCollateral, uint256 amountDscToMint)
+        public
+    {
         ERC20Mock collateral = _getCollateralFromSeed(collateralSeed);
 
         amountCollateral = bound(amountCollateral, 1, MAX_DEPOSIT_SIZE);
@@ -150,13 +148,13 @@ contract Handler is Test {
 
         // Select a user to liquidate
         address userToLiquidate = usersWhoDeposited[userSeed % usersWhoDeposited.length];
-        
+
         // Bound debt to cover to a reasonable amount
         debtToCover = bound(debtToCover, 1, MAX_DEPOSIT_SIZE);
 
         // Check if user can be liquidated (health factor < 1)
         (uint256 totalDscMinted, uint256 collateralValueInUsd) = dsce.getAccountInformation(userToLiquidate);
-        
+
         // Skip if user has no debt
         if (totalDscMinted == 0) {
             return;
@@ -164,7 +162,7 @@ contract Handler is Test {
 
         // Liquidator needs DSC to burn
         vm.startPrank(msg.sender);
-        
+
         // Mint DSC to liquidator if they don't have enough
         if (dsc.balanceOf(msg.sender) < debtToCover) {
             // Deposit collateral first
@@ -172,7 +170,7 @@ contract Handler is Test {
             uint256 collateralAmount = debtToCover * 2; // 2x collateral for safety
             collateral.mint(msg.sender, collateralAmount);
             collateral.approve(address(dsce), collateralAmount);
-            
+
             try dsce.depositCollateralAndMintDsc(address(collateral), collateralAmount, debtToCover) {
                 // Successfully minted DSC for liquidation
             } catch {
@@ -205,7 +203,7 @@ contract Handler is Test {
         // Bound price to realistic range: $100 to $10,000 per ETH
         // Using 8 decimals for price feed
         int256 price = int256(uint256(bound(newPrice, 100e8, 10_000e8)));
-        
+
         ethUsdPriceFeed.updateAnswer(price);
         timesPriceUpdateCalled++;
     }
@@ -219,7 +217,7 @@ contract Handler is Test {
         // Bound price to realistic range: $1,000 to $100,000 per BTC
         // Using 8 decimals for price feed
         int256 price = int256(uint256(bound(newPrice, 1_000e8, 100_000e8)));
-        
+
         btcUsdPriceFeed.updateAnswer(price);
         timesPriceUpdateCalled++;
     }
@@ -248,7 +246,7 @@ contract Handler is Test {
         // Update prices
         ethUsdPriceFeed.updateAnswer(newEthPrice);
         btcUsdPriceFeed.updateAnswer(newBtcPrice);
-        
+
         timesPriceUpdateCalled += 2;
     }
 

@@ -45,6 +45,7 @@ import {OracleLib} from "./libraries/OracleLib.sol";
  * @notice This contract is the core of the DSC system. It handles all the logic for minting and redeeming DSC, as well as depositing and withdrawing collateral.
  * @notice This contract is very loosely based on the MakerDAO DSS (DAI Stablecoin System) system.
  */
+
 contract DSCEngine is ReentrancyGuard {
     ///////////////
     /// ERRORS ///
@@ -245,7 +246,8 @@ contract DSCEngine is ReentrancyGuard {
 
         uint256 endingUserHealthFactor = _healthFactor(user);
         if (endingUserHealthFactor <= startingUserHealthFactor) {
-            revert DSCEngine__HealthFactorNotImproved();}
+            revert DSCEngine__HealthFactorNotImproved();
+        }
     }
 
     function getHealthFactor() external view {}
@@ -254,13 +256,12 @@ contract DSCEngine is ReentrancyGuard {
     // PRIVATE & INTERNAL FUNCTIONS //
     //////////////////////////////////
 
-    
-    //  * 
+    //  *
     //  * @dev low-level internal functin, do not call unless the functin calling it is checking health factors
-    //  * @param amountDscToBurn 
-    //  * @param onBehalfOf 
-    //  * @param dscFrom 
-    // 
+    //  * @param amountDscToBurn
+    //  * @param onBehalfOf
+    //  * @param dscFrom
+    //
     function _burnDsc(uint256 amountDscToBurn, address onBehalfOf, address dscFrom) private {
         s_DSCMinted[onBehalfOf] -= amountDscToBurn;
         bool success = i_dsc.transferFrom(dscFrom, address(this), amountDscToBurn);
@@ -279,7 +280,6 @@ contract DSCEngine is ReentrancyGuard {
         if (!success) {
             revert DSCEngine__TransferFailed();
         }
-        
     }
 
     function _getAccountInformation(address user)
@@ -303,10 +303,10 @@ contract DSCEngine is ReentrancyGuard {
         // Total DSC minted
         // Total value of collateral
         (uint256 totalDscMinted, uint256 collateralValueInUsd) = _getAccountInformation(user);
-        
+
         if (totalDscMinted == 0) {
-        return type(uint256).max;
-    }
+            return type(uint256).max;
+        }
         uint256 collateralAdjustedForThreshold = (collateralValueInUsd * LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
         return (collateralAdjustedForThreshold * PRECISION) / totalDscMinted;
         //return (collateralAdjustedForThreshold / totalDscMinted );
@@ -352,27 +352,38 @@ contract DSCEngine is ReentrancyGuard {
         return (uint256(price) * amount) / (10 ** feedDecimals);
     }
 
-    function getAccountInformation(address user) external view returns(uint256 totalDscMinted, uint256 collateralValueInUsd) {
+    function getAccountInformation(address user)
+        external
+        view
+        returns (uint256 totalDscMinted, uint256 collateralValueInUsd)
+    {
         (totalDscMinted, collateralValueInUsd) = _getAccountInformation(user);
     }
-    function getLiudatinonBonus() external pure returns (uint256)   {
+
+    function getLiudatinonBonus() external pure returns (uint256) {
         return LIQUIDATION_BONUS;
     }
+
     function getCollateralTokenPriceFeed(address token) external view returns (address) {
         return s_priceFeeds[token];
     }
+
     function getCollateralTokens() external view returns (address[] memory) {
         return s_collateralTokens;
     }
+
     function getMinHealthFactor() external pure returns (uint256) {
         return MIN_HEALTH_FACTOR;
     }
+
     function getLiquidationThreshold() external pure returns (uint256) {
         return LIQUIDATION_THRESHOLD;
     }
+
     function getCollateralBalanceOfUser(address user, address token) external view returns (uint256) {
         return s_collateralDeposited[user][token];
     }
+
     function getDsc() external view returns (address) {
         return address(i_dsc);
     }

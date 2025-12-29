@@ -23,40 +23,33 @@ contract InvariantTest is StdInvariant, Test {
     address wbtcUsdPriceFeed;
 
     function setUp() external {
-    deployer = new DeployDSC();
-    (dsc, dsce, config) = deployer.run();
+        deployer = new DeployDSC();
+        (dsc, dsce, config) = deployer.run();
 
-    // Unpack in correct order: wethUsdPriceFeed, wbtcUsdPriceFeed, weth, wbtc, deployerKey
-    (wethUsdPriceFeed, wbtcUsdPriceFeed, weth, wbtc,) = config.activeNetworkConfig();
+        // Unpack in correct order: wethUsdPriceFeed, wbtcUsdPriceFeed, weth, wbtc, deployerKey
+        (wethUsdPriceFeed, wbtcUsdPriceFeed, weth, wbtc,) = config.activeNetworkConfig();
 
-    console.log("=== Setup Configuration ===");
-    console.log("DSC:", address(dsc));
-    console.log("DSCEngine:", address(dsce));
-    console.log("WETH:", weth);
-    console.log("WBTC:", wbtc);
-    console.log("WETH Price Feed:", wethUsdPriceFeed);
-    console.log("WBTC Price Feed:", wbtcUsdPriceFeed);
+        console.log("=== Setup Configuration ===");
+        console.log("DSC:", address(dsc));
+        console.log("DSCEngine:", address(dsce));
+        console.log("WETH:", weth);
+        console.log("WBTC:", wbtc);
+        console.log("WETH Price Feed:", wethUsdPriceFeed);
+        console.log("WBTC Price Feed:", wbtcUsdPriceFeed);
 
-    require(weth != address(0), "WETH address cannot be zero");
-    require(wbtc != address(0), "WBTC address cannot be zero");
-    require(wethUsdPriceFeed != address(0), "WETH price feed cannot be zero");
-    require(wbtcUsdPriceFeed != address(0), "WBTC price feed cannot be zero");
+        require(weth != address(0), "WETH address cannot be zero");
+        require(wbtc != address(0), "WBTC address cannot be zero");
+        require(wethUsdPriceFeed != address(0), "WETH price feed cannot be zero");
+        require(wbtcUsdPriceFeed != address(0), "WBTC price feed cannot be zero");
 
-    // ✅ Pass all 6 parameters
-    handler = new Handler(
-        dsce, 
-        dsc, 
-        weth, 
-        wbtc, 
-        wethUsdPriceFeed, 
-        wbtcUsdPriceFeed
-    );
-    console.log("Handler address:", address(handler));
+        // ✅ Pass all 6 parameters
+        handler = new Handler(dsce, dsc, weth, wbtc, wethUsdPriceFeed, wbtcUsdPriceFeed);
+        console.log("Handler address:", address(handler));
 
-    targetContract(address(handler));
-    
-    console.log("=== Setup Complete ===");
-}
+        targetContract(address(handler));
+
+        console.log("=== Setup Complete ===");
+    }
 
     function invariant_protocolMustHaveMoreCollateralValueThanTotalSupply() public view {
         // Get total DSC supply
@@ -91,5 +84,4 @@ contract InvariantTest is StdInvariant, Test {
         dsce.getAccountCollateralValue(address(this));
         dsce.getAccountInformation(address(this));
     }
-    
 }
