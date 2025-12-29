@@ -71,7 +71,8 @@ contract Handler is Test {
         vm.prank(msg.sender);
         try dsce.redeemCollateral(address(collateral), amountCollateral) {
             // Success
-        } catch { // Failed - user doesn't have enough collateral or would break health factor
+        } catch {
+            // Failed - user doesn't have enough collateral or would break health factor
         }
     }
 
